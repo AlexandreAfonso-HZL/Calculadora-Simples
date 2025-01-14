@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Velha</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #333;
+      font-size: 24px;
+      cursor: pointer;
+      background-color: #f0f0f0;
+    }
+
+    .cell.taken {
+      pointer-events: none;
+      background-color: #ddd;
+    }
+
+    #status {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo da Velha</h1>
+  <div class="game-board" id="gameBoard"></div>
+  <p id="status"></p>
+  <button id="resetButton">Reiniciar</button>
+  <script>
+    const gameBoard = document.getElementById("gameBoard");
+    const statusText = document.getElementById("status");
+    const resetButton = document.getElementById("resetButton");
+
+    let currentPlayer = "X";
+    let gameActive = true;
+    let boardState = ["", "", "", "", "", "", "", "", ""];
+
+    // Função para verificar vencedor
+    function checkWinner() {
+      const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+        [0, 4, 8], [2, 4, 6]             // Diagonais
+      ];
+
+      for (let combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+          return boardState[a];
+        }
+      }
+
+      return boardState.includes("") ? null : "Empate";
+    }
+
+    // Função para criar o tabuleiro
+    function createBoard() {
+      gameBoard.innerHTML = "";
+      boardState.forEach((cell, index) => {
+        const cellElement = document.createElement("div");
+        cellElement.classList.add("cell");
+        cellElement.textContent = cell;
+        cellElement.addEventListener("click", () => handleCellClick(index));
+        gameBoard.appendChild(cellElement);
+      });
+    }
+
+    // Função para lidar com clique nas células
+    function handleCellClick(index) {
+      if (!gameActive || boardState[index]) return;
+
+      boardState[index] = currentPlayer;
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      updateGame();
+    }
+
+    // Função para atualizar o estado do jogo
+    function updateGame() {
+      createBoard();
+      const winner = checkWinner();
+      if (winner) {
+        gameActive = false;
+        statusText.textContent = winner === "Empate" ? "Empate!" : `Jogador ${winner} venceu!`;
+      } else {
+        statusText.textContent = `Vez do jogador ${currentPlayer}`;
+      }
+    }
+
+    // Função para reiniciar o jogo
+    resetButton.addEventListener("click", () => {
+      boardState = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = "X";
+      gameActive = true;
+      statusText.textContent = `Vez do jogador ${currentPlayer}`;
+      createBoard();
+    });
+
+    // Inicializa o jogo
+    createBoard();
+    statusText.textContent = `Vez do jogador ${currentPlayer}`;
+  </script>
+</body>
+</html>
